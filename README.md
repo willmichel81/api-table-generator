@@ -60,28 +60,24 @@ createTableFromAPI({
   Option                    Type            Required     Description
   ------------------------- --------------- ------------ ----------------
   `url`                     string          ✅ Yes       API endpoint
-                                                         returning JSON
-                                                         data
 
-  `tableId`                 string          ✅ Yes       ID of the HTML
-                                                         table element
+  `tableId`                 string          ✅ Yes       Table element ID
 
-  `columns`                 string\[\]      ❌ No        Explicit list of
-                                                         columns to
-                                                         display
-                                                         (controls order)
+  `columns`                 string\[\]      ❌ No        Explicit columns
+                                                         to display
 
-  `useDataTables`           boolean         ❌ No        Enables
+  `useDataTables`           boolean         ❌ No        Enable
                                                          DataTables
-                                                         enhancement
 
-  `dataTableOptions`        object          ❌ No        Custom
-                                                         configuration
-                                                         for DataTables
+  `dataTableOptions`        object          ❌ No        DataTables
+                                                         config
+
+  `columnRenderers`         object          ❌ No        Custom render
+                                                         functions per
+                                                         column
   -----------------------------------------------------------------------
 
 ------------------------------------------------------------------------
-
 ## 🧠 How It Works
 
 ### 1. Fetch Data
@@ -133,11 +129,69 @@ createTableFromAPI({
     useDataTables: true
 });
 ```
+## 🧠 Column Renderers Explained
+
+Each key corresponds to a column name.
+
+Function signature:
+
+``` javascript
+(value, row) => string
+```
 
 ------------------------------------------------------------------------
 
-## ⚠️ Notes
+## 🔥 Examples
 
+``` javascript
+createTableFromAPI({
+    url: "https://jsonplaceholder.typicode.com/users",
+    tableId: "myTable",
+    useDataTables: true,
+    columnRenderers: {
+        email: (value) => `<a href="mailto:${value}">${value}</a>`
+    }
+});
+```
+
+```
+
+------------------------------------------------------------------------
+
+### Website Link
+
+``` javascript
+columnRenderers: {
+    website: (value) => `<a href="https://${value}" target="_blank">${value}</a>`
+}
+```
+
+------------------------------------------------------------------------
+
+### Currency
+
+``` javascript
+columnRenderers: {
+    price: (value) => `$${Number(value).toFixed(2)}`
+}
+```
+
+------------------------------------------------------------------------
+
+### Date Formatting
+
+``` javascript
+columnRenderers: {
+    created_at: (value) => new Date(value).toLocaleDateString()
+}
+```
+
+------------------------------------------------------------------------
+
+## ⚠️ Important Notes
+
+-   Uses `innerHTML` when renderers are applied\
+-   Ensure data is trusted or sanitized (XSS risk)
 -   API must return an array of objects\
 -   Nested objects are not automatically flattened\
 -   DataTables requires jQuery

@@ -7,7 +7,8 @@ async function createTableFromAPI(config) {
         tableId,
         columns,
         useDataTables = false,
-        dataTableOptions = {}
+        dataTableOptions = {},
+        columnRenderers={}
     } = config;
 
     try {
@@ -20,7 +21,7 @@ async function createTableFromAPI(config) {
 
         const cols = columns || extractColumns(data);
 
-        buildTable(tableId, cols, data);
+        buildTable(tableId, cols, data, columnRenderers);
 
         // Enhance with DataTables if requested
         if (useDataTables) {
@@ -62,7 +63,7 @@ function extractColumns(data) {
 /**
  * Build HTML table
  */
-function buildTable(tableId, columns, data) {
+function buildTable(tableId, columns, data, columnRenderers = {}) {
     const table = document.getElementById(tableId);
 
     if (!table) {
@@ -93,7 +94,11 @@ function buildTable(tableId, columns, data) {
 
             if (value === undefined || value === null) value = "";
 
-            td.textContent = value;
+                if(columnRenderers[col]){
+                    td.innerHTML = columnRenderers[col](value,row);
+                }else{
+                    td.textContent = value ?? "";
+                }
             tr.appendChild(td);
         });
 
